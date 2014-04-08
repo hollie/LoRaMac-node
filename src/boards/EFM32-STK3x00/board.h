@@ -6,6 +6,11 @@
 #include <string.h>
 
 #include "em_device.h"
+#include "em_chip.h"
+
+#include "em_cmu.h"
+#include "em_emu.h"
+#include "em_gpio.h"
 
 #include "gpio.h"
 #include "i2c.h"
@@ -57,7 +62,11 @@
  * Board MCU pins definitions
  */
 #define LED_1			PB_9
+#define LED_1_OFF_STATE	0
+#define LED_1_ON_STATE	1
 #define LED_2			PB_8
+#define LED_2_OFF_STATE	0
+#define LED_2_ON_STATE	1
 
 #define RADIO_RESET		PC_2
 
@@ -89,7 +98,6 @@
  */
 extern Gpio_t Led1;
 extern Gpio_t Led2;
-extern Gpio_t Led3;
 
 /*!
  * MCU objects

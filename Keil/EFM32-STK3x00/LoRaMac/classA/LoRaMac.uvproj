@@ -413,6 +413,18 @@
         </Group>
         <Group>
           <GroupName>boards\EFM32-STK3x00</GroupName>
+          <Files>
+            <File>
+              <FileName>board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\EFM32-STK3x00\board.c</FilePath>
+            </File>
+            <File>
+              <FileName>gpio-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\EFM32-STK3x00\gpio-board.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>boards\EFM32-STK3200\cmsis</GroupName>

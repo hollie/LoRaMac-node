@@ -301,12 +301,12 @@ int main( void )
             if( AppLedStateOn == true )
             {
                 // Switch LED 3 ON
-                GpioWrite( &Led3, 0 );
+                GpioWrite( &Led2, 0 );
             }
             else
             {
                 // Switch LED 3 OFF
-                GpioWrite( &Led3, 1 );
+                GpioWrite( &Led2, 1 );
             }
         }
         
