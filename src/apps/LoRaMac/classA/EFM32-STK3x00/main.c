@@ -1,17 +1,3 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: LoRaMac classA device implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
 #include <string.h>
 #include <math.h>
 #include "board.h"
@@ -23,61 +9,57 @@ Maintainer: Miguel Luis and Gregory Cristian
  * When set to 1 the application uses the Over-the-Air activation procedure
  * When set to 0 the application uses the Personalization activation procedure
  */
-#define OVER_THE_AIR_ACTIVATION                     0
+#define OVER_THE_AIR_ACTIVATION		0
 
 /*!
  * Mote device IEEE EUI
  */
 static uint8_t DevEui[] =
 {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-#if( OVER_THE_AIR_ACTIVATION != 0 )
+#if ( OVER_THE_AIR_ACTIVATION != 0 )
 
-#define OVER_THE_AIR_ACTIVATION_DUTYCYCLE          10000000  // 10 [s] value in us
+	#define OVER_THE_AIR_ACTIVATION_DUTYCYCLE	10000000  // 10 [s] value in us
 
-/*!
- * Application IEEE EUI
- */
-static uint8_t AppEui[] =
-{
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-};
+	/*!
+	 * Application IEEE EUI
+	 */
+	static uint8_t AppEui[] = {
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	};
 
-/*!
- * AES encryption/decryption cipher application key
- */
-static uint8_t AppKey[] = 
-{ 
-    0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
-    0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
-};
+	/*!
+	 * AES encryption/decryption cipher application key
+	 */
+	static uint8_t AppKey[] = { 
+		0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
+		0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
+	};
 
 #else
 
-/*!
- * AES encryption/decryption cipher network session key
- */
-static uint8_t NwkSKey[] = 
-{ 
-    0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
-    0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
-};
+	/*!
+	 * AES encryption/decryption cipher network session key
+	 */
+	static uint8_t NwkSKey[] = { 
+		0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
+		0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
+	};
 
-/*!
- * AES encryption/decryption cipher application session key
- */
-static uint8_t AppSKey[] = 
-{ 
-    0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
-    0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
-};
+	/*!
+	 * AES encryption/decryption cipher application session key
+	 */
+	static uint8_t AppSKey[] = { 
+		0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6,
+		0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C
+	};
 
-/*!
- * Device address
- */
-static uint32_t DevAddr;
+	/*!
+	 * Device address
+	 */
+	static uint32_t DevAddr;
 
 #endif
 
@@ -89,13 +71,13 @@ static bool IsNetworkJoined = false;
 /*!
  * Defines the application data transmission duty cycle
  */
-#define APP_TX_DUTYCYCLE                            5000000  // 5 [s] value in us
-#define APP_TX_DUTYCYCLE_RND                        1000000  // 1 [s] value in us
+#define APP_TX_DUTYCYCLE		5000000  // 5 [s] value in us
+#define APP_TX_DUTYCYCLE_RND	1000000  // 1 [s] value in us
 
 /*!
  * User application data buffer size
  */
-#define APP_DATA_SIZE                               8
+#define APP_DATA_SIZE			8
 
 /*!
  * User application data
@@ -109,12 +91,12 @@ static uint32_t TxDutyCycleTime;
 
 static TimerEvent_t TxNextPacketTimer;
 
-#if( OVER_THE_AIR_ACTIVATION != 0 )
+#if ( OVER_THE_AIR_ACTIVATION != 0 )
 
-/*!
- * Defines the join request timer
- */
-static TimerEvent_t JoinReqTimer;
+	/*!
+	 * Defines the join request timer
+	 */
+	static TimerEvent_t JoinReqTimer;
 
 #endif
 
@@ -138,13 +120,13 @@ volatile bool Led2TimerEvent = false;
 
 #if( OVER_THE_AIR_ACTIVATION != 0 )
 
-/*!
- * \brief Function executed on Led 1 Timeout event
- */
-void OnJoinReqTimerEvent( void )
-{
-    TxNextPacket = true;
-}
+	/*!
+	 * \brief Function executed on Led 1 Timeout event
+	 */
+	void OnJoinReqTimerEvent( void )
+	{
+		TxNextPacket = true;
+	}
 
 #endif
 
@@ -153,7 +135,7 @@ void OnJoinReqTimerEvent( void )
  */
 void OnTxNextPacketTimerEvent( void )
 {
-    TxNextPacket = true;
+	TxNextPacket = true;
 }
 
 /*!
@@ -161,7 +143,7 @@ void OnTxNextPacketTimerEvent( void )
  */
 void OnLed1TimerEvent( void )
 {
-    Led1TimerEvent = true;
+	Led1TimerEvent = true;
 }
 
 /*!
@@ -169,7 +151,7 @@ void OnLed1TimerEvent( void )
  */
 void OnLed2TimerEvent( void )
 {
-    Led2TimerEvent = true;
+	Led2TimerEvent = true;
 }
 
 /*!
@@ -177,35 +159,30 @@ void OnLed2TimerEvent( void )
  */
 void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 {
-    if( info->Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT )
-    {
-        TxDone = true;
-    }
-    if( flags->Bits.JoinAccept == 1 )
-    {
-#if( OVER_THE_AIR_ACTIVATION != 0 )
-        TimerStop( &JoinReqTimer );
-#endif
-        IsNetworkJoined = true;
-    }
-    
-    if( flags->Bits.Tx == 1 )
-    {
-        if( info->TxAckReceived == true )
-        {
-            TxAckReceived = true;
-        }
-        TxDone = true;
-    }
+	if( info->Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT )
+		TxDone = true;
 
-    if( flags->Bits.Rx == 1 )
-    {
-        if( ( ( info->RxPort == 1 ) || ( info->RxPort == 2 ) ) && ( info->RxBufferSize > 0 ) )
-        {
-            AppLedStateOn = info->RxBuffer[0];
-        }
-        RxDone = true;
-    }
+	if( flags->Bits.JoinAccept == 1 )
+	{
+#if( OVER_THE_AIR_ACTIVATION != 0 )
+		TimerStop( &JoinReqTimer );
+#endif
+		IsNetworkJoined = true;
+	}
+	
+	if( flags->Bits.Tx == 1 )
+	{
+		if( info->TxAckReceived == true )
+			TxAckReceived = true;
+		TxDone = true;
+	}
+
+	if( flags->Bits.Rx == 1 )
+	{
+		if( ( ( info->RxPort == 1 ) || ( info->RxPort == 2 ) ) && ( info->RxBufferSize > 0 ) )
+			AppLedStateOn = info->RxBuffer[0];
+		RxDone = true;
+	}
 }
 
 /**
@@ -213,134 +190,134 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
  */
 int main( void )
 {
-    uint8_t batteryLevel = 0;   
+	uint8_t batteryLevel = 0;   
 
-    BoardInitMcu( );
-    BoardInitPeriph( );
+	BoardInitMcu( );
+	BoardInitPeriph( );
 
-    // Initialize LoRaMac device unique ID
-    BoardGetUniqueId( DevEui );
+	// Initialize LoRaMac device unique ID
+	BoardGetUniqueId( DevEui );
 
-    LoRaMacEvents.MacEvent = OnMacEvent;
-    LoRaMacInit( &LoRaMacEvents );
+	LoRaMacEvents.MacEvent = OnMacEvent;
+	LoRaMacInit( &LoRaMacEvents );
 
-    IsNetworkJoined = false;
+	IsNetworkJoined = false;
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
-    // Random seed initialization
-    srand( RAND_SEED );
-    // Choose a random device address
-    DevAddr = randr( 0, 0x0FFFFFFF );
+	// Random seed initialization
+	srand( RAND_SEED );
+	// Choose a random device address
+	DevAddr = randr( 0, 0x0FFFFFFF );
 
-    LoRaMacInitNwkIds( DevAddr, NwkSKey, AppSKey );
-    
-    IsNetworkJoined = true;
+	LoRaMacInitNwkIds( DevAddr, NwkSKey, AppSKey );
+	
+	IsNetworkJoined = true;
 #else
-    // Sends a JoinReq Command every 5 seconds until the network is joined
-    TimerInit( &JoinReqTimer, OnJoinReqTimerEvent ); 
-    TimerSetValue( &JoinReqTimer, OVER_THE_AIR_ACTIVATION_DUTYCYCLE );
-    TimerStart( &JoinReqTimer );
+	// Sends a JoinReq Command every 5 seconds until the network is joined
+	TimerInit( &JoinReqTimer, OnJoinReqTimerEvent ); 
+	TimerSetValue( &JoinReqTimer, OVER_THE_AIR_ACTIVATION_DUTYCYCLE );
+	TimerStart( &JoinReqTimer );
 #endif
 
-    TxNextPacket = true;
-    TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
-    
-    TimerInit( &Led1Timer, OnLed1TimerEvent ); 
-    TimerSetValue( &Led1Timer, 25000 );
+	TxNextPacket = true;
+	TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
+	
+	TimerInit( &Led1Timer, OnLed1TimerEvent ); 
+	TimerSetValue( &Led1Timer, 25000 );
 
-    TimerInit( &Led2Timer, OnLed2TimerEvent ); 
-    TimerSetValue( &Led2Timer, 25000 );
+	TimerInit( &Led2Timer, OnLed2TimerEvent ); 
+	TimerSetValue( &Led2Timer, 25000 );
 
-    LoRaMacSetAdrOn( true );
+	LoRaMacSetAdrOn( true );
 
-    while( 1 )
-    {
-        while( IsNetworkJoined == false )
-        {
+	while( 1 )
+	{
+		while( IsNetworkJoined == false )
+		{
 #if( OVER_THE_AIR_ACTIVATION != 0 )
-            if( TxNextPacket == true )
-            {
-                TxNextPacket = false;
-                
-                LoRaMacJoinReq( DevEui, AppEui, AppKey );
+			if( TxNextPacket == true )
+			{
+				TxNextPacket = false;
+				
+				LoRaMacJoinReq( DevEui, AppEui, AppKey );
 
-                // Relaunch timer for next trial
-                TimerStart( &JoinReqTimer );
-            }
-            TimerLowPowerHandler( );
+				// Relaunch timer for next trial
+				TimerStart( &JoinReqTimer );
+			}
+			TimerLowPowerHandler( );
 #endif
-        }
-        if( Led1TimerEvent == true )
-        {
-            Led1TimerEvent = false;
-            
-            // Switch LED 1 OFF
-            GpioWrite( &Led1, 1 );
-        }
+		}
+		if( Led1TimerEvent == true )
+		{
+			Led1TimerEvent = false;
+			
+			// Switch LED 1 OFF
+			GpioWrite( &Led1, 1 );
+		}
 
-        if( Led2TimerEvent == true )
-        {
-            Led2TimerEvent = false;
-            
-            // Switch LED 2 OFF
-            GpioWrite( &Led2, 1 );
-        }
+		if( Led2TimerEvent == true )
+		{
+			Led2TimerEvent = false;
+			
+			// Switch LED 2 OFF
+			GpioWrite( &Led2, 1 );
+		}
 
-        if( TxAckReceived == true )
-        {
-            TxAckReceived = false;
-            // Switch LED 2 ON
-            GpioWrite( &Led2, 0 );
-            TimerStart( &Led2Timer );
-        }
-        
-        if( RxDone == true )
-        {
-            RxDone = false;
-            
-            if( AppLedStateOn == true )
-            {
-                // Switch LED 3 ON
-                GpioWrite( &Led2, 0 );
-            }
-            else
-            {
-                // Switch LED 3 OFF
-                GpioWrite( &Led2, 1 );
-            }
-        }
-        
-        if( TxDone == true )
-        {
-            TxDone = false;
-            
-            // Schedule next packet transmission
-            TxDutyCycleTime = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
-            TimerSetValue( &TxNextPacketTimer, TxDutyCycleTime );
-            TimerStart( &TxNextPacketTimer );
-        }
+		if( TxAckReceived == true )
+		{
+			TxAckReceived = false;
+			// Switch LED 2 ON
+			GpioWrite( &Led2, 0 );
+			TimerStart( &Led2Timer );
+		}
+		
+		if( RxDone == true )
+		{
+			RxDone = false;
+			
+			if( AppLedStateOn == true )
+			{
+				// Switch LED 3 ON
+				GpioWrite( &Led2, 0 );
+			}
+			else
+			{
+				// Switch LED 3 OFF
+				GpioWrite( &Led2, 1 );
+			}
+		}
+		
+		if( TxDone == true )
+		{
+			TxDone = false;
+			
+			// Schedule next packet transmission
+			TxDutyCycleTime = APP_TX_DUTYCYCLE + randr( -APP_TX_DUTYCYCLE_RND, APP_TX_DUTYCYCLE_RND );
+			TimerSetValue( &TxNextPacketTimer, TxDutyCycleTime );
+			TimerStart( &TxNextPacketTimer );
+		}
 
-        if( TxNextPacket == true )
-        {
-            TxNextPacket = false;
-        
-            batteryLevel = BoardMeasureBatterieLevel( );                        // 1 (very low) to 254 (fully charged)
-        
-            // Switch LED 1 ON
-            GpioWrite( &Led1, 0 );
-            TimerStart( &Led1Timer );
-        
-            AppData[0] = AppLedStateOn;
+		if( TxNextPacket == true )
+		{
+			TxNextPacket = false;
+		
+			batteryLevel = BoardMeasureBatterieLevel( );						// 1 (very low) to 254 (fully charged)
+		
+			// Switch LED 1 ON
+			GpioWrite( &Led1, 0 );
+			TimerStart( &Led1Timer );
+		
+			AppData[0] = AppLedStateOn;
 			//
 			//
 			//
-            AppData[7] = batteryLevel;
-            
-            LoRaMacSendFrame( 1, AppData, APP_DATA_SIZE );
-            //LoRaMacSendConfirmedFrame( 1, AppData, APP_DATA_SIZE, 1 );
-        }
+			AppData[7] = batteryLevel;
+			
+			LoRaMacSendFrame( 1, AppData, APP_DATA_SIZE );
+			//LoRaMacSendConfirmedFrame( 1, AppData, APP_DATA_SIZE, 1 );
+		}
 
-        TimerLowPowerHandler( );
-    }
+		TimerLowPowerHandler( );
+	}
 }
 

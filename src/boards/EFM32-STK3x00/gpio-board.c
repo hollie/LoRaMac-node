@@ -70,6 +70,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 					obj->pin = NC;
 					return;
 			}
+			break;
 		case PIN_ALTERNATE_FCT:
 			break;
 		case PIN_ANALOGIC:
@@ -199,7 +200,7 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj )
 
 void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 {
-	if (obj == NULL || obj->port == NULL || obj->pin == NC)
+	if (obj == NULL || obj->portIndex == NULL || obj->pin == NC)
 		return;
 
 	if ( value == 0 )

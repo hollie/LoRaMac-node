@@ -1,5 +1,30 @@
 #ifndef __BOARD_H__
 #define __BOARD_H__
+/*
+             ---- STK3700 ------
+              3V3  20  19  GND
+               5V  18  17  PD7
+       DIO1   PD6  16  15  PC6  DIO0
+      LE_RX   PD5  14  13  PB12
+      LE_TX   PD4  12  11  PB11 RF_RST
+        NSS   PD3  10  9   PC5  I2C1_SCL
+        SCK   PD2   8  7   PC4  I2C1_SDA
+       MISO   PD1   6  5   PC3  SW_RX
+       MOSI   PD0   4  3   PC0  SW_TX
+             VMCU   2  1   GND
+
+            ----- STK3200  -----
+              3V3  20  19  EBID_SDA
+               5V  18  17  EBID_SCL
+   I2C0_SDA  PE12  16  15  PE13 I2C0_SCL
+      LE_RX   PD5  14  13  PA1  DIO1
+      LE_TX   PD4  12  11  PB11 RF_RST
+        NSS  PC14  10  9   PA0  DIO0
+        SCK  PC15   8  7   PC2  
+       MISO   PD6   6  5   PC1  SW_TX
+       MOSI   PD7   4  3   PC0  SW_RX
+             VMCU   2  1   GND
+*/
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -45,53 +70,37 @@
 #endif
 
 /*!
- * Unique Devices IDs register set ( STM32L1xxx )
- */
-#define ID1	( 0x1FF80050 )
-#define ID2	( 0x1FF80054 )
-#define ID3	( 0x1FF80064 )
-
-/*!
  * Random seed generated using the MCU Unique ID
  */
-#define RAND_SEED	(	(*( uint32_t*)ID1 ) ^ \
-						(*( uint32_t*)ID2 ) ^ \
-						(*( uint32_t* )ID3) )
+#define RAND_SEED	( DEVINFO->UNIQUEH ^ DEVINFO->UNIQUEL )
 
-/*!
- * Board MCU pins definitions
- */
-#define LED_1			PB_9
-#define LED_1_OFF_STATE	0
-#define LED_1_ON_STATE	1
-#define LED_2			PB_8
-#define LED_2_OFF_STATE	0
-#define LED_2_ON_STATE	1
+#ifdef EFM32ZG222F32
+	/*!
+	 * EFM32-STK3200
+	 */
+	#define LED_1			PC_10
+	#define LED_1_OFF_STATE	0
+	#define LED_1_ON_STATE	1
+	#define LED_2			PC_11
+	#define LED_2_OFF_STATE	0
+	#define LED_2_ON_STATE	1
 
-#define RADIO_RESET		PC_2
+	#define RADIO_RESET		PB_11
 
-#define RADIO_MOSI		PA_7
-#define RADIO_MISO		PA_6
-#define RADIO_SCLK		PA_5
-#define RADIO_NSS		PA_4
+	#define RADIO_MOSI		PD_7
+	#define RADIO_MISO		PD_6
+	#define RADIO_SCLK		PC_15
+	#define RADIO_NSS		PC_14
 
-#define RADIO_DIO_0		PA_0
-#define RADIO_DIO_1		PA_1
+	#define RADIO_DIO_0		PA_0
+	#define RADIO_DIO_1		PA_1
 
-#define RADIO_ANT_SWITCH_RX		PC_0
-#define RADIO_ANT_SWITCH_TX		PC_1
+	#define RADIO_ANT_SWITCH_RX		PC_0
+	#define RADIO_ANT_SWITCH_TX		PC_1
 
-#define OSC_LSE_IN		PC_14
-#define OSC_LSE_OUT		PC_15
-
-#define OSC_HSE_IN		PH_0
-#define OSC_HSE_OUT		PH_1
-
-#define USB_DM			PA_11
-#define USB_DP			PA_12
-
-#define I2C_SCL			PB_10
-#define I2C_SDA			PB_11
+	#define I2C_SCL			PE_13
+	#define I2C_SDA			PE_12
+#endif
 
 /*!
  * LED GPIO pins objects

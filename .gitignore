@@ -6,3 +6,6 @@ obj/
 *.uvopt
 *_uvopt.bak
 *_uvproj.bak
+
+*Log.txt
+*Settings.ini

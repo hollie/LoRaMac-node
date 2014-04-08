@@ -436,7 +436,7 @@ void RtcRecoverMcuStatus( void )
         
         /* Enable the Power Voltage Detector */
         PWR_PVDCmd( ENABLE );
-            
+
         BoardInitMcu( );  
 
         __enable_irq( );   

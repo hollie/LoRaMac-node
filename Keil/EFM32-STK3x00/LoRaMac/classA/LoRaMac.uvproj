@@ -167,11 +167,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4103</DriverSelection>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -343,7 +343,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>2</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -423,6 +423,26 @@
               <FileName>gpio-board.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\EFM32-STK3x00\gpio-board.c</FilePath>
+            </File>
+            <File>
+              <FileName>sx1272-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\EFM32-STK3x00\sx1272-board.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\EFM32-STK3x00\spi-board.c</FilePath>
+            </File>
+            <File>
+              <FileName>i2c-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\EFM32-STK3x00\i2c-board.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtc-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\EFM32-STK3x00\rtc-board.c</FilePath>
             </File>
           </Files>
         </Group>
