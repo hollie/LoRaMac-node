@@ -36,6 +36,8 @@
 #include "em_cmu.h"
 #include "em_emu.h"
 #include "em_gpio.h"
+#include "em_rtc.h"
+#include "em_letimer.h"
 
 #include "gpio.h"
 #include "i2c.h"

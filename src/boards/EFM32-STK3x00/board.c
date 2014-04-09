@@ -13,12 +13,32 @@ volatile uint8_t Led3Status = 1;
 /*!
  * Flag to indicate if the MCU is Initialized
  */
-static bool McuInitialized = false;
+bool McuInitialized = false;
 
 /*!
  * Initializes the unused GPIO to a know status
  */
-static void BoardUnusedIoInit( void );
+void BoardUnusedIoInit( void );
+
+void Led_1_On(void)
+{
+	GpioWrite(&Led1, LED_1_ON_STATE);
+}
+
+void Led_1_Off(void)
+{
+	GpioWrite(&Led1, LED_1_OFF_STATE);
+}
+
+void Led_2_On(void)
+{
+	GpioWrite(&Led2, LED_2_ON_STATE);
+}
+
+void Led_2_Off(void)
+{
+	GpioWrite(&Led2, LED_2_OFF_STATE);
+}
 
 void BoardInitMcu( void )
 {
@@ -34,39 +54,37 @@ void BoardInitMcu( void )
 		CMU_ClockEnable(cmuClock_HFPER, true);
 		CMU_ClockEnable(cmuClock_GPIO, true);
 
-		/* Disable Systick */
-		SysTick->CTRL  &= ~SysTick_CTRL_TICKINT_Msk;	// Systick IRQ off
-		SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;			// Clear SysTick Exception pending flag
-
 		GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, LED_1_ON_STATE );
 		GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, LED_2_ON_STATE );
 
-#warning I2C and SPI
-		//!!! I2cInit( &I2c, I2C_SCL, I2C_SDA );
+//!!!	I2cInit( &I2c, I2C_SCL, I2C_SDA );
 		SX1272IoInit( );
-		//!!! SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+		SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
 
 		BoardUnusedIoInit( );
 
-		while(1)
-		{
-			__IO uint32_t delay;
-			for(delay = 1000000; delay != 0; --delay)
-				;
-			GpioWrite(&Led1, LED_1_OFF_STATE);
-			for(delay = 1000000; delay != 0; --delay)
-				;
-			GpioWrite(&Led1, LED_1_ON_STATE);
-		}
-
 #ifdef LOW_POWER_MODE_ENABLE
-#warning RtcInit( );
-		//!!! RtcInit( );
+		RtcInit( );
 #else
 		TimerHwInit( );
 #endif
+		Led_1_Off();
+		Led_2_Off();
+
 		McuInitialized = true;
 	}
+
+	while(1)
+	{
+		__IO uint32_t delay;
+		for(delay = 1000000; delay != 0; --delay)
+			;
+		GpioWrite(&Led1, LED_1_OFF_STATE);
+		for(delay = 1000000; delay != 0; --delay)
+			;
+		GpioWrite(&Led1, LED_1_ON_STATE);
+	}
+
 }
 
 void BoardDeInitMcu( void )
@@ -83,9 +101,9 @@ void BoardDeInitMcu( void )
 	SpiDeInit( &SX1272.Spi );
 	SX1272IoDeInit( );
 
-	GpioInit( &Led1, LED_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-	GpioInit( &Led2, LED_2, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 */
+	GpioInit( &Led1, LED_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+	GpioInit( &Led2, LED_2, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 	McuInitialized = false;
 }
 

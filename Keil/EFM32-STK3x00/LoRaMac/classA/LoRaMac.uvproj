@@ -359,7 +359,7 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls>--c99</MiscControls>
-              <Define>USE_DEBUGGER LOW_POWER_MODE_ENABLE EFM32ZG222F32</Define>
+              <Define>EFM32ZG222F32</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\EFM32-STK3x00;..\..\..\..\src\boards\Bleeper\cmsis;..\..\..\..\src\boards\mcu\efm32;..\..\..\..\src\boards\mcu\efm32\cmsis\Include;..\..\..\..\src\boards\mcu\efm32\emlib\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto;..\..\..\..\src\boards\mcu\efm32\Device\EnergyMicro\EFM32ZG\Include</IncludePath>
             </VariousControls>
@@ -444,6 +444,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\EFM32-STK3x00\rtc-board.c</FilePath>
             </File>
+            <File>
+              <FileName>timer-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\EFM32-STK3x00\timer-board.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -503,6 +508,11 @@
               <FileName>em_system.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\mcu\efm32\emlib\src\em_system.c</FilePath>
+            </File>
+            <File>
+              <FileName>em_usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\efm32\emlib\src\em_usart.c</FilePath>
             </File>
           </Files>
         </Group>

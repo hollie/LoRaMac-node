@@ -1,18 +1,18 @@
 #include "board.h"
 #include "gpio-board.h"
 
-static GpioIrqHandler *GpioIrq[16];
+GpioIrqHandler *GpioIrq[16];
 
 void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value )
 {
 	GPIO_Mode_TypeDef pinMode;
 
+	obj->pin = pin;
 	if( pin == NC ) 
 		return;
 
 	obj->portIndex = ( uint32_t ) pin >> 4;
-	obj->pin = pin;
-	obj->pinIndex = (obj->pin & 0x0F);
+	obj->pinIndex = 1 << (obj->pin & 0x0F);
 
 	if( obj->portIndex > (uint16_t)gpioPortF )
 	{
@@ -84,7 +84,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 	
 	GPIO_PinModeSet(
 		(GPIO_Port_TypeDef)(obj->portIndex),
-		obj->pinIndex,
+		(obj->pin & 0x0F),
 		pinMode,
 		value
 	);
@@ -205,12 +205,11 @@ void GpioMcuWrite( Gpio_t *obj, uint32_t value )
 
 	if ( value == 0 )
 	{
-		
-		GPIO_PinOutClear((GPIO_Port_TypeDef)(obj->portIndex), obj->pinIndex);
+		GPIO->P[obj->portIndex].DOUTCLR = obj->pinIndex;
 	}
 	else
 	{
-		GPIO_PinOutSet((GPIO_Port_TypeDef)(obj->portIndex), obj->pinIndex);
+		GPIO->P[obj->portIndex].DOUTSET = obj->pinIndex;
 	}
 }
 
@@ -218,180 +217,26 @@ uint32_t GpioMcuRead( Gpio_t *obj )
 {
 	if ( obj == NULL || obj->pin == NC )
 		return 0;
-
-	return GPIO_PinInGet((GPIO_Port_TypeDef)(obj->portIndex), obj->pinIndex);
+	return (GPIO->P[obj->portIndex].DIN & obj->portIndex ? 1 : 0);
 }
 
 #if 0
+void EXTIx_IRQHandler( uint6_t mask, int index )
+{
+	RtcRecoverMcuStatus( );
+	if( EXTI_GetITStatus( mask ) != RESET )
+	{
+		if( GpioIrq[index] != NULL )
+		{
+			GpioIrq[index]( ); 
+		}
+		EXTI_ClearITPendingBit( mask );
+	}
+}
+
 void EXTI0_IRQHandler( void )
 {
-	RtcRecoverMcuStatus( );
-	if( EXTI_GetITStatus( EXTI_Line0 ) != RESET )
-	{
-		if( GpioIrq[0] != NULL )
-		{
-			GpioIrq[0]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line0 );
-	}
+	EXTIx_IRQHandler( EXTI_Line0, 0 );
 }
 
-void EXTI1_IRQHandler( void )
-{
-	RtcRecoverMcuStatus( );
-	if( EXTI_GetITStatus( EXTI_Line1 ) != RESET )
-	{
-		if( GpioIrq[1] != NULL )
-		{
-			GpioIrq[1]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line1 );
-	}
-}
-
-void EXTI2_IRQHandler( void )
-{
-	RtcRecoverMcuStatus( );
-	if( EXTI_GetITStatus( EXTI_Line2 ) != RESET )
-	{
-		if( GpioIrq[2] != NULL )
-		{
-			GpioIrq[2]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line2 );
-	}
-}
-
-void EXTI3_IRQHandler( void )
-{
-	RtcRecoverMcuStatus( );
-	if( EXTI_GetITStatus( EXTI_Line3 ) != RESET )
-	{
-		if( GpioIrq[3] != NULL )
-		{
-			GpioIrq[3]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line3 );
-	}
-}
-
-void EXTI4_IRQHandler( void )
-{
-	RtcRecoverMcuStatus( );
-	if( EXTI_GetITStatus( EXTI_Line4 ) != RESET )
-	{
-		if( GpioIrq[4] != NULL )
-		{
-			GpioIrq[4]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line4 );
-	}
-}
-
-void EXTI9_5_IRQHandler( void )
-{
-	RtcRecoverMcuStatus( );
-	if( EXTI_GetITStatus( EXTI_Line5 ) != RESET )
-	{
-		if( GpioIrq[5] != NULL )
-		{
-			GpioIrq[5]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line5 );
-	}
-
-	if( EXTI_GetITStatus( EXTI_Line6 ) != RESET )
-	{   
-		if( GpioIrq[6] != NULL )
-		{
-			GpioIrq[6]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line6 );
-	}
-
-	if( EXTI_GetITStatus( EXTI_Line7 ) != RESET )
-	{
-		if( GpioIrq[7] != NULL )
-		{
-			GpioIrq[7]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line7 );
-	}
-
-	if( EXTI_GetITStatus( EXTI_Line8 ) != RESET )
-	{
-		if( GpioIrq[8] != NULL )
-		{
-			GpioIrq[8]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line8 );
-	}
-
-	if( EXTI_GetITStatus( EXTI_Line9 ) != RESET )
-	{   
-		if( GpioIrq[9] != NULL )
-		{
-			GpioIrq[9]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line9 );
-	}
-}
-
-void EXTI15_10_IRQHandler( void )
-{
-	RtcRecoverMcuStatus( );
-	if( EXTI_GetITStatus( EXTI_Line10 ) != RESET )
-	{	
-		if( GpioIrq[10] != NULL )
-		{
-			GpioIrq[10]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line10 );
-	}
-
-	if( EXTI_GetITStatus( EXTI_Line11 ) != RESET )
-	{	
-		if( GpioIrq[11] != NULL )
-		{
-			GpioIrq[11]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line11 );
-	}
-
-	if( EXTI_GetITStatus( EXTI_Line12 ) != RESET )
-	{	
-		if( GpioIrq[12] != NULL )
-		{
-			GpioIrq[12]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line12 );
-	}
-
-	if( EXTI_GetITStatus( EXTI_Line13 ) != RESET )
-	{	
-		if( GpioIrq[13] != NULL )
-		{
-			GpioIrq[13]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line13 );
-	}
-
-	if( EXTI_GetITStatus( EXTI_Line14 ) != RESET )
-	{	
-		if( GpioIrq[14] != NULL )
-		{
-			GpioIrq[14]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line14 );
-	}
-
-	if( EXTI_GetITStatus( EXTI_Line15 ) != RESET )
-	{	
-		if( GpioIrq[15] != NULL )
-		{
-			GpioIrq[15]( ); 
-		}
-		EXTI_ClearITPendingBit( EXTI_Line15 );
-	}
-}
 #endif

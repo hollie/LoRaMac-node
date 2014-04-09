@@ -1,6 +1,7 @@
 #include "board.h"
 #include "spi-board.h"
 
+USART_InitSync_TypeDef init = USART_INITSYNC_DEFAULT;
 
 /*!
  * MCU SPI peripherals enumeration
@@ -8,31 +9,16 @@
 
 void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames nss )
 {
-#if 0
-    GpioInit( &obj->Mosi, mosi, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
-    GpioInit( &obj->Miso, miso, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
-    GpioInit( &obj->Sclk, sclk, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
-
-    // TODO: Make independent of stm32l1xx_gpio.h
-    GPIO_PinAFConfig( obj->Mosi.port, ( obj->Mosi.pin & 0x0F ), GPIO_AF_SPI1 );
-    GPIO_PinAFConfig( obj->Miso.port, ( obj->Miso.pin & 0x0F ), GPIO_AF_SPI1 );
-    GPIO_PinAFConfig( obj->Sclk.port, ( obj->Sclk.pin & 0x0F ), GPIO_AF_SPI1 );
+	GpioInit( &obj->Mosi, mosi, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
+    GpioInit( &obj->Miso, miso, PIN_INPUT,  PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
+    GpioInit( &obj->Sclk, sclk, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
 
     if( nss != NC )
     {
-        GpioInit( &obj->Nss, nss, PIN_ALTERNATE_FCT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
-        // TODO: Make independent of stm32l1xx_gpio.h
-        GPIO_PinAFConfig( obj->Nss.port, ( obj->Nss.pin & 0x0F ), GPIO_AF_SPI1 );
-    }
-    else
-    {
-        SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+		GpioInit( &obj->Nss, nss, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
     }
 
-    // Choose SPI interface according to the given pins
-    obj->Spi = ( SPI_TypeDef* )SPI1_BASE;
-    RCC_APB2PeriphClockCmd( RCC_APB2Periph_SPI1, ENABLE );
-
+    obj->Spi = USART1;
     if( nss == NC )
     {
         // 8 bits, CPOL = 0, CPHA = 0, MASTER
@@ -43,29 +29,45 @@ void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames 
         // 8 bits, CPOL = 0, CPHA = 0, SLAVE
         SpiFormat( obj, 8, 0, 0, 1 );
     }
-    SpiFrequency( obj, 10000000 );
+	
+	CMU_ClockEnable(cmuClock_USART1, true);
 
-    SPI_Cmd( obj->Spi, ENABLE );
-#endif
+	init.enable			= usartEnable;
+	init.baudrate		= 5000000;
+	init.databits		= usartDatabits8;
+	init.msbf			= 0;
+	init.master			= 1;
+	init.clockMode		= usartClockMode0;
+	init.prsRxEnable	= 0;
+	init.autoTx			= 0;
+	USART_InitSync(USART1, &init);
+	/* Turn on automatic Chip Select control */
+	// USART1->CTRL |= USART_CTRL_AUTOCS;
+  
+	/* Route to location 3 and enable TX, CS, CLK pins */
+	USART1->ROUTE = USART_ROUTE_TXPEN |
+					USART_ROUTE_RXPEN |
+					// USART_ROUTE_CSPEN |
+					USART_ROUTE_CLKPEN |
+					USART_ROUTE_LOCATION_LOC3;
 }
 
 void SpiDeInit( Spi_t *obj )
 {
-#if 0
-    SPI_Cmd( obj->Spi, DISABLE );
-    SPI_I2S_DeInit( obj->Spi );
+	USART_Reset(USART1);
 
-    GpioInit( &obj->Mosi, obj->Mosi.pin, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &obj->Miso, obj->Miso.pin, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
-    GpioInit( &obj->Sclk, obj->Sclk.pin, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &obj->Nss, obj->Nss.pin, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
-#endif
+    GpioInit( &obj->Mosi, obj->Mosi.pin, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &obj->Miso, obj->Miso.pin, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_DOWN, 0 );
+    GpioInit( &obj->Sclk, obj->Sclk.pin, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+	if (obj->Nss.pin != NC)
+		GpioInit( &obj->Nss, obj->Nss.pin, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
 }
 
 void SpiFormat( Spi_t *obj, int8_t bits, int8_t cpol, int8_t cpha, int8_t slave )
 {
-#if 0
-    SPI_Cmd( obj->Spi, DISABLE );
+	USART_ClockMode_TypeDef mode;
+
+	USART_Enable(USART1, usartDisable);
     
     if( ( ( ( bits == 8 ) || ( bits == 16 ) ) == false ) ||
         ( ( ( cpol >= 0 ) && ( cpol <= 1 ) ) == false ) ||
@@ -75,58 +77,38 @@ void SpiFormat( Spi_t *obj, int8_t bits, int8_t cpol, int8_t cpha, int8_t slave 
         while( 1 );
     }
 
-    SPI_InitStructure.SPI_Mode = ( slave == 0x01 ) ? SPI_Mode_Slave : SPI_Mode_Master;
-    SPI_InitStructure.SPI_CPOL = ( cpol == 0x01 ) ? SPI_CPOL_High : SPI_CPOL_Low;
-    SPI_InitStructure.SPI_CPHA = ( cpha == 0x01 ) ? SPI_CPHA_2Edge : SPI_CPHA_1Edge;
-    SPI_InitStructure.SPI_DataSize = ( bits == 8 ) ? SPI_DataSize_8b : SPI_DataSize_16b;
-    SPI_Init( obj->Spi, &SPI_InitStructure );
+	if ( cpol == 0x01 )
+	{
+		if ( cpha == 0x01 )
+			mode = usartClockMode2;	/** Clock idle high, sample on falling edge. */
+		else
+			mode = usartClockMode3; /** Clock idle high, sample on rising edge. */
+	}
+	else
+	{
+		if ( cpha == 0x01 )
+			mode = usartClockMode1;	/** Clock idle low, sample on falling edge. */
+		else
+			mode = usartClockMode0; /** Clock idle low, sample on rising edge. */
+	}
 
-    SPI_Cmd( obj->Spi, ENABLE );
-#endif
-}
-
-void SpiFrequency( Spi_t *obj, uint32_t hz )
-{
-#if 0
-    uint32_t divisor;
-
-    SPI_Cmd( obj->Spi, DISABLE );
-
-    divisor = SystemCoreClock / hz;
-    
-    // Find the nearest power-of-2
-    divisor = divisor > 0 ? divisor-1 : 0;
-    divisor |= divisor >> 1;
-    divisor |= divisor >> 2;
-    divisor |= divisor >> 4;
-    divisor |= divisor >> 8;
-    divisor |= divisor >> 16;
-    divisor++;
-
-    divisor = __builtin_ffs( divisor ) - 1;
-
-    divisor = ( divisor > 0x07 ) ? 0x07 : divisor;
-
-    SPI_InitStructure.SPI_BaudRatePrescaler = divisor << 3;
-    SPI_Init( obj->Spi, &SPI_InitStructure );
-
-    SPI_Cmd( obj->Spi, ENABLE );
-#endif
+	init.databits		= ( bits == 8 ) ? usartDatabits8 : usartDatabits16;
+	init.msbf			= 0;
+	init.master			= ( slave == 0x01 ) ? 0 : 1;
+	init.clockMode		= mode;
+	init.prsRxEnable	= 0;
+	init.autoTx			= 0;
+	USART_InitSync(USART1, &init);
+	/* Turn on automatic Chip Select control */
+	// USART1->CTRL |= USART_CTRL_AUTOCS;
 }
 
 uint16_t SpiInOut( Spi_t *obj, uint16_t outData )
 {
-#if 0
     if( ( obj == NULL ) || ( obj->Spi ) == NULL )
-    {
-        while( 1 );
-    }
-    
-    while( SPI_I2S_GetFlagStatus( obj->Spi, SPI_I2S_FLAG_TXE ) == RESET );
-    SPI_I2S_SendData( obj->Spi, outData );
-    while( SPI_I2S_GetFlagStatus( obj->Spi, SPI_I2S_FLAG_RXNE ) == RESET );
-    return SPI_I2S_ReceiveData( obj->Spi );
-#endif
-	return 0;
+        while( 1 )
+			;
+    USART_Tx(USART1, outData);
+    return USART_Rx(USART1);
 }
 

@@ -2,6 +2,7 @@
 #define __SPI_MCU_H__
 
 #include "em_device.h"
+#include "em_usart.h"
 #include "gpio-board.h"
 
 /*!
