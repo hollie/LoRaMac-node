@@ -1,9 +1,11 @@
 #include "board.h"
 #include "gpio-board.h"
+#include "em_gpio.h"
+#include "em_int.h"
 
 GpioIrqHandler *GpioIrq[16];
 
-void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value )
+void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint16_t value )
 {
 	GPIO_Mode_TypeDef pinMode;
 
@@ -11,7 +13,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 	if( pin == NC ) 
 		return;
 
-	obj->portIndex = ( uint32_t ) pin >> 4;
+	obj->portIndex = ( uint16_t ) pin >> 4;
 	obj->pinIndex = 1 << (obj->pin & 0x0F);
 
 	if( obj->portIndex > (uint16_t)gpioPortF )
@@ -92,151 +94,125 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 
 void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler )
 {
-#if 0
-	NVIC_InitTypeDef NVIC_InitStructure;
-	EXTI_InitTypeDef EXTI_InitStructure;
+	unsigned int pin = obj->pin & 0x0F;
+	bool rising = false;
+	bool falling = false;
+	
+	if (obj->pin == NC)
+		return;
 
 	if( irqHandler == NULL )
 	{
+		GPIO_IntConfig(
+			(GPIO_Port_TypeDef)(obj->portIndex),
+			pin, false, false, false
+		);
 		return;
 	}
 
-	GpioIrq[obj->pin & 0x0F] = irqHandler;
-
-	/* Enable SYSCFG clock */
-	RCC_APB2PeriphClockCmd( RCC_APB2Periph_SYSCFG, ENABLE );
-
-	/* Connect EXTI Line to GPIO pin */
-	SYSCFG_EXTILineConfig( obj->portIndex, ( ( obj->pin ) & 0x0F ) );
-
-	/* Configure EXTI line */
-	 EXTI_InitStructure.EXTI_Line = ( 0x01 << ( obj->pin & 0x0F ) );
-	 EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+	GpioIrq[pin] = irqHandler;
 
 	if( irqMode == IRQ_RISING_EDGE )
-	{
-		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising; 
-	}
+		rising = true;
 	else if( irqMode == IRQ_FALLING_EDGE )
-	{
-		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling; 
-	}
+		falling = true;
 	else if( irqMode == IRQ_RISING_FALLING_EDGE )
-	{
-		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling; 
-	}
+		falling = rising = true;
 	else
 	{
 		while( 1 );
 	}
+		
+	GPIO_IntConfig((GPIO_Port_TypeDef)(obj->portIndex), pin, rising, falling, true);
  
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&EXTI_InitStructure);
-
-	if( ( ( obj->pin ) & 0x0F ) < 5 )
-	{
-		NVIC_InitStructure.NVIC_IRQChannel = ( ( obj->pin ) & 0x0F ) + 6;
-	}
-	else if( ( ( obj->pin ) & 0x0F ) < 10 )
-	{
-		NVIC_InitStructure.NVIC_IRQChannel = 23;
-	}
-	else if( ( ( obj->pin ) & 0x0F ) < 16 )
-	{
-		NVIC_InitStructure.NVIC_IRQChannel = 40;
-	}
+	if (obj->pin & 0x01)
+		NVIC_EnableIRQ(GPIO_ODD_IRQn);
 	else
-	{
-		while( 1 );
-	}
-
+		NVIC_EnableIRQ(GPIO_EVEN_IRQn);
+	/*
 	if( irqPriority == IRQ_VERY_LOW_PRIORITY )
 	{
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 15;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	}
 	else if( irqPriority == IRQ_LOW_PRIORITY )
 	{
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 12;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	}
 	else if( irqPriority == IRQ_MEDIUM_PRIORITY )
 	{
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 8;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	}
 	else if( irqPriority == IRQ_HIGH_PRIORITY )
 	{
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 4;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	}
 	else if( irqPriority == IRQ_VERY_HIGH_PRIORITY )
 	{
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	}
 	else
 	{
 		while( 1 );
 	}
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init( &NVIC_InitStructure );
-#endif
+	*/
 }
 
 void GpioMcuRemoveInterrupt( Gpio_t *obj )
 {
-	/*
-	EXTI_InitTypeDef EXTI_InitStructure;
+	int pin = obj->pin & 0x0F;
 
-	GpioIrq[obj->pin & 0x0F] = NULL;
+	if (obj->pin == NC)
+		return;
 
-	EXTI_InitStructure.EXTI_Line = ( 0x01 << ( obj->pin & 0x0F ) );
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt; 
-	EXTI_InitStructure.EXTI_LineCmd = DISABLE;
-	EXTI_Init(&EXTI_InitStructure);
-	*/
+	GpioIrq[pin] = NULL;
+	GPIO_IntConfig((GPIO_Port_TypeDef)(obj->portIndex), pin, false, false, false);
 }
 
-void GpioMcuWrite( Gpio_t *obj, uint32_t value )
+void GpioMcuWrite( Gpio_t *obj, uint16_t value )
 {
 	if (obj == NULL || obj->portIndex == NULL || obj->pin == NC)
 		return;
 
-	if ( value == 0 )
-	{
-		GPIO->P[obj->portIndex].DOUTCLR = obj->pinIndex;
-	}
+	if (value == 0)
+		GPIO_PortOutClear((GPIO_Port_TypeDef)(obj->portIndex), obj->pinIndex);
 	else
-	{
-		GPIO->P[obj->portIndex].DOUTSET = obj->pinIndex;
-	}
+		GPIO_PortOutSet((GPIO_Port_TypeDef)(obj->portIndex), obj->pinIndex);
 }
 
-uint32_t GpioMcuRead( Gpio_t *obj )
+uint16_t GpioMcuRead( Gpio_t *obj )
 {
-	if ( obj == NULL || obj->pin == NC )
+	if (obj == NULL || obj->portIndex == NULL || obj->pin == NC)
 		return 0;
 	return (GPIO->P[obj->portIndex].DIN & obj->portIndex ? 1 : 0);
 }
 
-#if 0
-void EXTIx_IRQHandler( uint6_t mask, int index )
+void EXTIx_IRQHandler(void)
 {
+	register uint32_t mask;
+	register GpioIrqHandler ** handler;
+	register uint32_t flags;
+
 	RtcRecoverMcuStatus( );
-	if( EXTI_GetITStatus( mask ) != RESET )
+
+	mask = 0x8000;
+	handler = &GpioIrq[0];
+	flags = GPIO_IntGetEnabled();
+
+	do
 	{
-		if( GpioIrq[index] != NULL )
+		if (flags & mask)
 		{
-			GpioIrq[index]( ); 
+			if (*handler != NULL)
+				(*handler)();
+			handler++;
 		}
-		EXTI_ClearITPendingBit( mask );
-	}
+		mask >>= 1;
+	} while (mask != 0);
+
+	GPIO_IntClear(flags);
 }
 
-void EXTI0_IRQHandler( void )
+void GPIO_EVEN_IRQHandler(void)
 {
-	EXTIx_IRQHandler( EXTI_Line0, 0 );
+	EXTIx_IRQHandler();
 }
 
-#endif
+void GPIO_ODD_IRQHandler(void)
+{
+	EXTIx_IRQHandler();
+}

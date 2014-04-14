@@ -65,6 +65,7 @@ void BoardInitMcu( void )
 		BoardUnusedIoInit( );
 
 #ifdef LOW_POWER_MODE_ENABLE
+		#error LOW_POWER_MODE_ENABLE not supported
 		RtcInit( );
 #else
 		TimerHwInit( );

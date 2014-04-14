@@ -1,17 +1,3 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Bleeper board GPIO driver implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
 #ifndef __GPIO_MCU_H__
 #define __GPIO_MCU_H__
 
@@ -28,7 +14,7 @@ Maintainer: Miguel Luis and Gregory Cristian
  * \param [IN] type   Pin type [PIN_NO_PULL, PIN_PULL_UP, PIN_PULL_DOWN]
  * \param [IN] value  Default output value at initialisation
  */
-void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value );
+void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint16_t value );
   
 /*!
  * \brief GPIO IRQ Initialization
@@ -56,7 +42,7 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj );
  * \param [IN] obj    Pointer to the GPIO object
  * \param [IN] value  New GPIO output value
  */
-void GpioMcuWrite( Gpio_t *obj, uint32_t value );
+void GpioMcuWrite( Gpio_t *obj, uint16_t value );
 
 /*!
  * \brief Reads the current GPIO input value
@@ -64,6 +50,6 @@ void GpioMcuWrite( Gpio_t *obj, uint32_t value );
  * \param [IN] obj    Pointer to the GPIO object
  * \retval value  Current GPIO input value
  */
-uint32_t GpioMcuRead( Gpio_t *obj );
+uint16_t GpioMcuRead( Gpio_t *obj );
 
 #endif // __GPIO_MCU_H__
