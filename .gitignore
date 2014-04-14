@@ -1,11 +1,16 @@
 lst/
 obj/
+build/
 *.dep
 *.uvgui.*
 *.uvgui_*.bak
+*.uvguix.*
+*.uvguix_*.bak
 *.uvopt
+*.uvoptx
 *_uvopt.bak
+*_uvoptx.bak
 *_uvproj.bak
-
+*_uvprojx.bak
 *Log.txt
 *Settings.ini

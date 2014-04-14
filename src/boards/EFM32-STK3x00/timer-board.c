@@ -91,7 +91,9 @@ void SysTick_Handler(void)
 		--TimerDownCount;
 
 	if( TimerTickCounter == TimeoutCntValue )
+	{
 		TimerIrqHandler( );
+	}
 }
 
 void TimerHwEnterLowPowerStopMode( void )

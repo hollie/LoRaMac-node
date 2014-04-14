@@ -1,30 +1,5 @@
 #ifndef __BOARD_H__
 #define __BOARD_H__
-/*
-             ---- STK3700 ------
-              3V3  20  19  GND
-               5V  18  17  PD7
-       DIO1   PD6  16  15  PC6  DIO0
-      LE_RX   PD5  14  13  PB12
-      LE_TX   PD4  12  11  PB11 RF_RST
-        NSS   PD3  10  9   PC5  I2C1_SCL
-        SCK   PD2   8  7   PC4  I2C1_SDA
-       MISO   PD1   6  5   PC3  SW_RX
-       MOSI   PD0   4  3   PC0  SW_TX
-             VMCU   2  1   GND
-
-            ----- STK3200  -----
-              3V3  20  19  EBID_SDA
-               5V  18  17  EBID_SCL
-   I2C0_SDA  PE12  16  15  PE13 I2C0_SCL
-      LE_RX   PD5  14  13  PA1  DIO1
-      LE_TX   PD4  12  11  PB11 RF_RST
-        NSS  PC14  10  9   PA0  DIO0
-        SCK  PC15   8  7   PC2  
-       MISO   PD6   6  5   PC1  SW_TX
-       MOSI   PD7   4  3   PC0  SW_RX
-             VMCU   2  1   GND
-*/
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -76,10 +51,74 @@
  */
 #define RAND_SEED	( DEVINFO->UNIQUEH ^ DEVINFO->UNIQUEL )
 
+#ifdef EFM32GG990F1024
+	/*!
+	 * EFM32-STK3700
+	 */
+	/*
+             ---- STK3700 ------
+              3V3  20  19  GND
+               5V  18  17  PD7
+       DIO1   PD6  16  15  PC6  DIO0
+      LE_RX   PD5  14  13  PB12
+      LE_TX   PD4  12  11  PB11 RF_RST
+        NSS   PD3  10  9   PC5  I2C1_SCL
+        SCK   PD2   8  7   PC4  I2C1_SDA
+       MISO   PD1   6  5   PC3  SW_TX
+       MOSI   PD0   4  3   PC0  SW_RX
+             VMCU   2  1   GND
+	*/
+	// Use Timer for delay
+	#undef LOW_POWER_MODE_ENABLE
+
+	#define LED_1			PE_2
+	#define LED_1_OFF_STATE	0
+	#define LED_1_ON_STATE	1
+	#define LED_2			PE_3
+	#define LED_2_OFF_STATE	0
+	#define LED_2_ON_STATE	1
+
+	#define RADIO_RESET		PB_11
+
+	#define RADIO_MOSI		PD_0
+	#define RADIO_MISO		PD_1
+	#define RADIO_SCLK		PD_2
+	#define RADIO_NSS		PD_3
+
+	#define RADIO_DIO_0		PC_6
+	#define RADIO_DIO_1		PD_6
+
+	#define RADIO_ANT_SWITCH_RX		PC_0
+	#define RADIO_ANT_SWITCH_TX		PC_1
+
+	#define I2C_SCL			PC_5
+	#define I2C_SDA			PC_4
+
+	#define RADIO_SPI		USART1
+	#define RADIO_SPI_CLK	cmuClock_USART1
+	#define RADIO_SPI_LOC	USART_ROUTE_LOCATION_LOC1
+
+#else
 #ifdef EFM32ZG222F32
 	/*!
 	 * EFM32-STK3200
 	 */
+	/*
+            ----- STK3200  -----
+              3V3  20  19  EBID_SDA
+               5V  18  17  EBID_SCL
+   I2C0_SDA  PE12  16  15  PE13 I2C0_SCL
+      LE_RX   PD5  14  13  PA1  DIO1
+      LE_TX   PD4  12  11  PB11 RF_RST
+        NSS  PC14  10  9   PA0  DIO0
+        SCK  PC15   8  7   PC2  
+       MISO   PD6   6  5   PC1  SW_TX
+       MOSI   PD7   4  3   PC0  SW_RX
+             VMCU   2  1   GND
+	*/
+	// Use Timer for delay
+	#undef LOW_POWER_MODE_ENABLE
+
 	#define LED_1			PC_10
 	#define LED_1_OFF_STATE	0
 	#define LED_1_ON_STATE	1
@@ -102,6 +141,13 @@
 
 	#define I2C_SCL			PE_13
 	#define I2C_SDA			PE_12
+
+	#define RADIO_SPI		USART1
+	#define RADIO_SPI_CLK	cmuClock_USART1
+	#define RADIO_SPI_LOC	USART_ROUTE_LOCATION_LOC3
+#else
+	#error MCU not define
+#endif
 #endif
 
 /*!
@@ -109,6 +155,10 @@
  */
 extern Gpio_t Led1;
 extern Gpio_t Led2;
+void Led_1_On(void);
+void Led_1_Off(void);
+void Led_2_On(void);
+void Led_2_Off(void);
 
 /*!
  * MCU objects

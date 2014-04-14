@@ -6,10 +6,9 @@
 Gpio_t Led1;
 Gpio_t Led2;
 
-I2c_t I2c;
-
-volatile uint8_t Led3Status = 1;
-
+#ifdef USE_I2C
+	I2c_t I2c;
+#endif
 /*!
  * Flag to indicate if the MCU is Initialized
  */
@@ -57,7 +56,9 @@ void BoardInitMcu( void )
 		GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, LED_1_ON_STATE );
 		GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, LED_2_ON_STATE );
 
-//!!!	I2cInit( &I2c, I2C_SCL, I2C_SDA );
+#ifdef USE_I2C
+		I2cInit( &I2c, I2C_SCL, I2C_SDA );
+#endif
 		SX1272IoInit( );
 		SpiInit( &SX1272.Spi, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
 
@@ -73,35 +74,25 @@ void BoardInitMcu( void )
 
 		McuInitialized = true;
 	}
-
-	while(1)
-	{
-		__IO uint32_t delay;
-		for(delay = 1000000; delay != 0; --delay)
-			;
-		GpioWrite(&Led1, LED_1_OFF_STATE);
-		for(delay = 1000000; delay != 0; --delay)
-			;
-		GpioWrite(&Led1, LED_1_ON_STATE);
-	}
-
 }
 
 void BoardDeInitMcu( void )
 {
 	/* Switching the CPU clock source to HFRCO */
-	CMU_ClockSelectSet(cmuClock_HF,cmuSelect_HFRCO);
+	CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);
 
 	/* Disabling every oscillator except hfrco and lfxo */
 	CMU_OscillatorEnable(cmuOsc_AUXHFRCO, false, true);
 	CMU_OscillatorEnable(cmuOsc_HFXO, false, true);
 	CMU_OscillatorEnable(cmuOsc_LFRCO, false, true);
-/*
+
+#ifdef USE_I2C
 	I2cDeInit( &I2c );
+#endif
+
 	SpiDeInit( &SX1272.Spi );
 	SX1272IoDeInit( );
 
-*/
 	GpioInit( &Led1, LED_1, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 	GpioInit( &Led2, LED_2, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 	McuInitialized = false;
@@ -113,15 +104,7 @@ void BoardInitPeriph( void )
 
 void BoardGetUniqueId( uint8_t *id )
 {
-	uint64_t uid = SYSTEM_GetUnique();
-	id[0] = uid >> 56;
-	id[1] = uid >> 48;
-	id[2] = uid >> 40;
-	id[3] = uid >> 32;
-	id[4] = uid >> 24;
-	id[5] = uid >> 16;
-	id[6] = uid >> 8;
-	id[7] = uid;
+	*((uint64_t *)id) = SYSTEM_GetUnique();
 }
 
 uint8_t BoardMeasureBatterieLevel( void ) 
