@@ -355,10 +355,14 @@
             <wLevel>0</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
+<<<<<<< HEAD
             <uC99>0</uC99>
+=======
+            <uC99>1</uC99>
+>>>>>>> upstream/master
             <useXO>0</useXO>
             <VariousControls>
-              <MiscControls> --c99 --gnu</MiscControls>
+              <MiscControls></MiscControls>
               <Define>USE_DEBUGGER LOW_POWER_MODE_ENABLE</Define>
               <Undefine></Undefine>
               <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\SK-iM880A;..\..\..\..\src\boards\SK-iM880A\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
