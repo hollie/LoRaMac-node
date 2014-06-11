@@ -199,8 +199,8 @@ void EXTIx_IRQHandler(void)
 		{
 			if (*handler != NULL)
 				(*handler)();
-			handler++;
 		}
+		handler++;
 		mask >>= 1;
 	} while (mask != 0);
 
