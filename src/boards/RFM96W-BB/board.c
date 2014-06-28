@@ -33,15 +33,9 @@ uint8_t BoardMeasureBatterieLevel( void )
 void BoardInitPeriph( void )
 {
 	GpioInit( &DcDcEnable, DC_DC_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-	/* Init the GPIO extender pins */
 	GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 	GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 	GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
-	LED_1_OFF();
-	LED_2_OFF();
-	LED_3_OFF();
 }
 
 void BoardInitMcu( void )
@@ -102,8 +96,10 @@ void BoardGetUniqueId( uint8_t *id )
 
 static void BoardUnusedIoInit( void )
 {
+#if (!defined( USE_USB_CDC ) || !defined( USE_DEBUGGER ))
 	Gpio_t ioPin;
-  
+#endif
+
 	/* USB */
 #if !defined( USE_USB_CDC )
 	GpioInit( &ioPin, USB_DM, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );

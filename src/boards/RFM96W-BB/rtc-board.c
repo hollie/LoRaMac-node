@@ -144,14 +144,14 @@ static void RtcSetConfig( void )
     RCC_RTCResetCmd( DISABLE );
 
     /* Enable the LSE OSC */
-    RCC_LSEConfig( RCC_LSE_ON );
+	RCC_LSICmd(ENABLE);
 
     /* Wait till LSE is ready */  
-    while( RCC_GetFlagStatus( RCC_FLAG_LSERDY ) == RESET )
+    while( RCC_GetFlagStatus( RCC_FLAG_LSIRDY ) == RESET )
     {}
 
     /* Select the RTC Clock Source */
-    RCC_RTCCLKConfig( RCC_RTCCLKSource_LSE );
+    RCC_RTCCLKConfig( RCC_RTCCLKSource_LSI );
 
     /* Enable the RTC Clock */
     RCC_RTCCLKCmd( ENABLE );

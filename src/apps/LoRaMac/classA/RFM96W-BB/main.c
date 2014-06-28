@@ -206,12 +206,23 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
  */
 int main( void )
 {
-	BoardInitMcu( );
+	SystemCoreClockUpdate();
+while(1);
 	BoardInitPeriph( );
+	BoardInitMcu( );
 
 	// Initialize LoRaMac device unique ID
 	BoardGetUniqueId( DevEui );
-
+/*
+while(1)
+{
+	uint8_t data;
+	if (UartGetChar(&UartUsb, &data) == 0)
+	{
+		UartPutChar(&UartUsb, data);
+	}
+}
+*/
 	prvLoRaMacEvents.MacEvent = OnMacEvent;
 	LoRaMacInit( &prvLoRaMacEvents );
 
@@ -235,14 +246,14 @@ int main( void )
 
 	TxNextPacket = true;
 	TimerInit( &TxNextPacketTimer, OnTxNextPacketTimerEvent );
-	
-	TimerInit( &Led1Timer, OnLed1TimerEvent ); 
+
+	TimerInit( &Led1Timer, OnLed1TimerEvent );
 	TimerSetValue( &Led1Timer, 25000 );
 
-	TimerInit( &Led2Timer, OnLed2TimerEvent ); 
+	TimerInit( &Led2Timer, OnLed2TimerEvent );
 	TimerSetValue( &Led2Timer, 25000 );
 
-	TimerInit( &Led4Timer, OnLed4TimerEvent ); 
+	TimerInit( &Led4Timer, OnLed4TimerEvent );
 	TimerSetValue( &Led4Timer, 25000 );
 
 	LoRaMacSetAdrOn( true );
@@ -255,7 +266,7 @@ int main( void )
 			if( TxNextPacket == true )
 			{
 				TxNextPacket = false;
-				
+
 				LoRaMacJoinReq( DevEui, AppEui, AppKey );
 
 				// Relaunch timer for next trial

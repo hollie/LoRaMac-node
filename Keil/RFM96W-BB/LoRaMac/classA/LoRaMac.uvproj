@@ -146,7 +146,7 @@
             <UsePdscDebugDescription>1</UsePdscDebugDescription>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>1</TargetSelection>
+          <TargetSelection>11</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -160,7 +160,7 @@
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
             <InitializationFile></InitializationFile>
-            <Driver>BIN\UL2CM3.DLL</Driver>
+            <Driver>STLink\ST-LINKIII-KEIL_SWO.dll</Driver>
           </TargetDlls>
         </DebugOption>
         <Utilities>
@@ -362,9 +362,9 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_DEBUGGER LOW_POWER_MODE_ENABLE USE_BAND_433</Define>
+              <Define>USE_DEBUGGER LOW_POWER_MODE_ENABLE USE_BAND_433 USE_USB_CDC</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\RFM96W-BB;..\..\..\..\src\boards\RFM96W-BB\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto</IncludePath>
+              <IncludePath>..\..\..\..\src;..\..\..\..\src\boards\RFM96W-BB;..\..\..\..\src\boards\RFM96W-BB\cmsis;..\..\..\..\src\boards\mcu\stm32;..\..\..\..\src\boards\mcu\stm32\cmsis;..\..\..\..\src\boards\mcu\stm32\STM32L1xx_StdPeriph_Driver\inc;..\..\..\..\src\mac;..\..\..\..\src\peripherals;..\..\..\..\src\radio;..\..\..\..\src\system;..\..\..\..\src\system\crypto;..\..\..\..\src\boards\RFM96W-BB\usb\cdc\inc;..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -452,6 +452,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\RFM96W-BB\uart-board.c</FilePath>
             </File>
+            <File>
+              <FileName>usb-cdc-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb-cdc-board.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart-usb-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\uart-usb-board.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -466,6 +476,66 @@
               <FileName>system_stm32l1xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\RFM96W-BB\cmsis\system_stm32l1xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>boards\RFM96W-BB\usb</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_desc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_desc.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_istr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_istr.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_prop.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_prop.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_pwr.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>boards\RFM96W-BB\STM32_USB-FS-Device_Driver</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_int.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_int.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_mem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_regs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_regs.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_sil.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_sil.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -769,7 +839,7 @@
             <UsePdscDebugDescription>1</UsePdscDebugDescription>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>1</TargetSelection>
+          <TargetSelection>11</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -783,7 +853,7 @@
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
             <InitializationFile></InitializationFile>
-            <Driver>BIN\UL2CM3.DLL</Driver>
+            <Driver>STLink\ST-LINKIII-KEIL_SWO.dll</Driver>
           </TargetDlls>
         </DebugOption>
         <Utilities>
@@ -1075,6 +1145,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\RFM96W-BB\uart-board.c</FilePath>
             </File>
+            <File>
+              <FileName>usb-cdc-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb-cdc-board.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart-usb-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\uart-usb-board.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1089,6 +1169,66 @@
               <FileName>system_stm32l1xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\RFM96W-BB\cmsis\system_stm32l1xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>boards\RFM96W-BB\usb</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_desc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_desc.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_istr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_istr.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_prop.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_prop.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_pwr.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>boards\RFM96W-BB\STM32_USB-FS-Device_Driver</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_int.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_int.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_mem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_regs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_regs.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_sil.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_sil.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1392,7 +1532,7 @@
             <UsePdscDebugDescription>1</UsePdscDebugDescription>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>1</TargetSelection>
+          <TargetSelection>11</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -1406,7 +1546,7 @@
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
             <InitializationFile></InitializationFile>
-            <Driver>BIN\UL2CM3.DLL</Driver>
+            <Driver>STLink\ST-LINKIII-KEIL_SWO.dll</Driver>
           </TargetDlls>
         </DebugOption>
         <Utilities>
@@ -1698,6 +1838,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\RFM96W-BB\uart-board.c</FilePath>
             </File>
+            <File>
+              <FileName>usb-cdc-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb-cdc-board.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart-usb-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\uart-usb-board.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1712,6 +1862,66 @@
               <FileName>system_stm32l1xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\RFM96W-BB\cmsis\system_stm32l1xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>boards\RFM96W-BB\usb</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_desc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_desc.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_istr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_istr.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_prop.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_prop.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_pwr.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>boards\RFM96W-BB\STM32_USB-FS-Device_Driver</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_int.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_int.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_mem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_regs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_regs.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_sil.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_sil.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2015,7 +2225,7 @@
             <UsePdscDebugDescription>1</UsePdscDebugDescription>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>1</TargetSelection>
+          <TargetSelection>11</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -2029,7 +2239,7 @@
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
             <InitializationFile></InitializationFile>
-            <Driver>BIN\UL2CM3.DLL</Driver>
+            <Driver>STLink\ST-LINKIII-KEIL_SWO.dll</Driver>
           </TargetDlls>
         </DebugOption>
         <Utilities>
@@ -2321,6 +2531,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\RFM96W-BB\uart-board.c</FilePath>
             </File>
+            <File>
+              <FileName>usb-cdc-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb-cdc-board.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart-usb-board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\uart-usb-board.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2335,6 +2555,66 @@
               <FileName>system_stm32l1xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\boards\RFM96W-BB\cmsis\system_stm32l1xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>boards\RFM96W-BB\usb</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_desc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_desc.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_istr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_istr.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_prop.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_prop.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\RFM96W-BB\usb\cdc\src\usb_pwr.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>boards\RFM96W-BB\STM32_USB-FS-Device_Driver</GroupName>
+          <Files>
+            <File>
+              <FileName>usb_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_int.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_int.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_mem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_mem.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_regs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_regs.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_sil.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\boards\mcu\stm32\STM32_USB-FS-Device_Driver\src\usb_sil.c</FilePath>
             </File>
           </Files>
         </Group>
