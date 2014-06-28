@@ -4,11 +4,6 @@
 #include "sx1276-board.h"
 
 /*!
- * Flag used to set the RF switch control pins in low power mode when the radio is not active.
- */
-static bool RadioIsActive = false;
-
-/*!
  * Radio driver structure initialization
  */
 const struct Radio_s Radio =
@@ -33,12 +28,6 @@ const struct Radio_s Radio =
 	SX1276ReadBuffer
 };
 
-/*!
- * Antenna switch GPIO pins objects
- */
-Gpio_t AntSwitchLf;
-Gpio_t AntSwitchHf;
-
 void SX1276IoInit( void )
 {
 	GpioInit( &SX1276.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
@@ -49,8 +38,6 @@ void SX1276IoInit( void )
 	GpioInit( &SX1276.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
 	GpioInit( &SX1276.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
 	GpioInit( &SX1276.DIO5, RADIO_DIO_5, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-
-	SX1276AntSwInit( );
 }
 
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
@@ -78,42 +65,21 @@ void SX1276IoDeInit( void )
 uint8_t SX1276GetPaSelect( uint32_t channel )
 {
 	if( channel < RF_MID_BAND_THRESH )
-	{
 		return RF_PACONFIG_PASELECT_PABOOST;
-	}
 	else
-	{
 		return RF_PACONFIG_PASELECT_RFO;
-	}
 }
 
 void SX1276SetAntSwLowPower( bool status )
 {
-	if( RadioIsActive != status )
-	{
-		RadioIsActive = status;
-	
-		if( status == false )
-		{
-			SX1276AntSwInit( );
-		}
-		else
-		{
-			SX1276AntSwDeInit( );
-		}
-	}
 }
 
 void SX1276AntSwInit( void )
 {
-//	GpioInit( &AntSwitchLf, RADIO_ANT_SWITCH_LF, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
-//	GpioInit( &AntSwitchHf, RADIO_ANT_SWITCH_HF, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
 }
 
 void SX1276AntSwDeInit( void )
 {
-//	GpioInit( &AntSwitchLf, RADIO_ANT_SWITCH_LF, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-//	GpioInit( &AntSwitchHf, RADIO_ANT_SWITCH_HF, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
 }
 
 void SX1276SetAntSw( uint8_t rxTx )
@@ -122,19 +88,7 @@ void SX1276SetAntSw( uint8_t rxTx )
 	{
 		return;
 	}
-
 	SX1276.RxTx = rxTx;
-
-	if( rxTx != 0 )
-	{
-		GpioWrite( &AntSwitchLf, 0 );
-		GpioWrite( &AntSwitchHf, 0 );
-	}
-	else
-	{
-		GpioWrite( &AntSwitchLf, 1 );
-		GpioWrite( &AntSwitchHf, 1 );
-	}
 }
 
 bool SX1276CheckRfFrequency( uint32_t frequency )

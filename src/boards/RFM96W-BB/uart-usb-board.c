@@ -62,6 +62,7 @@ uint8_t UartUsbPutChar( Uart_t *obj, uint8_t data )
 		return 0; // OK
 	}
 	return 1; // Busy
+
 //	if( UsbPacketTx == 1 )
 //	{
 //		/*Sent flag*/

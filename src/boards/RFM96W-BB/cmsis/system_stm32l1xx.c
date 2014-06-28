@@ -150,13 +150,27 @@ void SystemCoreClockUpdate (void)
   */
 void SetSysClock(void)
 {
-	__IO uint32_t StartUpCounter = 0, Status;
-  
-	RCC->CR |= RCC_CR_HSION;
-	while (((RCC->CR & RCC_CR_HSIRDY) != RESET) && (StartUpCounter++ != HSI_STARTUP_TIMEOUT))
-	{ }
+	__IO uint32_t StartUpCounter = 0, Status = 0;
+	register RCC_TypeDef * rcc = RCC;
 
-	if ((RCC->CR & RCC_CR_HSIRDY) != RESET)
+#ifdef USE_HSE
+	/* After wake-up from STOP reconfigure the system clock */
+	rcc->CR |= RCC_CR_HSEON;
+	/* Wait till HSE is ready */
+	while (((rcc->CR & RCC_CR_HSERDY) == RESET) && (StartUpCounter++ != HSE_STARTUP_TIMEOUT))
+	{ }
+	if (( rcc->CR & RCC_CR_HSERDY ) != RESET )
+		Status = 1;
+#else
+	rcc->CR |= RCC_CR_HSION;
+	/* Wait till HSI is ready */
+	while (((rcc->CR & RCC_CR_HSIRDY) == RESET) && (StartUpCounter++ != HSI_STARTUP_TIMEOUT))
+	{ }
+	if (( rcc->CR & RCC_CR_HSIRDY ) != RESET )
+		Status = 1;
+#endif
+
+	if (Status != 0)
 	{
 		FLASH->ACR |= FLASH_ACR_ACC64;		/* Enable 64-bit access */
 		FLASH->ACR |= FLASH_ACR_PRFTEN;		/* Enable Prefetch Buffer */
@@ -166,22 +180,22 @@ void SetSysClock(void)
 		while((PWR->CSR & PWR_CSR_VOSF) != RESET)
 		{ }									/* Wait Until the Voltage Regulator is ready */
 
-		RCC->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;	/* HCLK = SYSCLK /1*/
-		RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;	/* PCLK2 = HCLK /1*/
-		RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV1;	/* PCLK1 = HCLK /1*/
+		rcc->CFGR |= (uint32_t)RCC_CFGR_HPRE_DIV1;	/* HCLK = SYSCLK /1*/
+		rcc->CFGR |= (uint32_t)RCC_CFGR_PPRE2_DIV1;	/* PCLK2 = HCLK /1*/
+		rcc->CFGR |= (uint32_t)RCC_CFGR_PPRE1_DIV1;	/* PCLK1 = HCLK /1*/
 		/*  PLL configuration */
-		RCC->CFGR &= ~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL | RCC_CFGR_PLLDIV);
-		RCC->CFGR |= (RCC_CFGR_PLLSRC_HSI | RCC_CFGR_PLLMUL6 | RCC_CFGR_PLLDIV3);
-		RCC->CR |= RCC_CR_PLLON;				/* Enable PLL */
-		while((RCC->CR & RCC_CR_PLLRDY) == 0)	/* Wait till PLL is ready */
+		rcc->CFGR &= ~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL | RCC_CFGR_PLLDIV);
+		rcc->CFGR |= (RCC_CFGR_PLLSRC_HSI | RCC_CFGR_PLLMUL6 | RCC_CFGR_PLLDIV3);
+		rcc->CR |= RCC_CR_PLLON;				/* Enable PLL */
+		while((rcc->CR & RCC_CR_PLLRDY) == 0)	/* Wait till PLL is ready */
 		{ }
 
 		/* Select PLL as system clock source */
-		RCC->CFGR &= ~(RCC_CFGR_SW);
-		RCC->CFGR |= RCC_CFGR_SW_PLL;
+		rcc->CFGR &= ~(RCC_CFGR_SW);
+		rcc->CFGR |= RCC_CFGR_SW_PLL;
 
 		/* Wait till PLL is used as system clock source */
-		while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL)
+		while ((rcc->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL)
 		{ }
 	}
 	else

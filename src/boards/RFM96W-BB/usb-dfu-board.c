@@ -33,9 +33,7 @@ void UsbMcuInit( void )
 
 	/* Enable USB clock */
 	RCC_APB1PeriphClockCmd( RCC_APB1Periph_USB, ENABLE );
-
 	UsbMcuInterruptsConfig ( );
-
 	USB_Init( );
 }
 
@@ -71,28 +69,22 @@ void UsbMcuLeaveLowPowerMode( void )
 
 	/* Set the device state to the correct state */
 	if( pInfo->Current_Configuration != 0 )
-	{
 		/* Device configured */
 		bDeviceState = CONFIGURED;
-	}
 	else
-	{
 		bDeviceState = ATTACHED;
-	}
-	/*Enable SystemCoreClock*/
+
+	/* Enable SystemCoreClock */
 	SystemInit( );
+	SystemCoreClockUpdate();
 }
 
 void UsbMcuCableConfig( FunctionalState newState )
 {
 	if( newState != DISABLE )
-	{
 		SYSCFG_USBPuCmd( ENABLE );
-	}
 	else
-	{
 		SYSCFG_USBPuCmd( DISABLE );
-	}  
 }
 
 void UsbMcuResetDevice( void )
@@ -122,19 +114,14 @@ static void IntToUnicode( uint32_t value , uint8_t *pbuf , uint8_t len )
 {
 	uint8_t idx = 0;
 
-	for( idx = 0; idx < len; idx++ )
+	for ( idx = 0; idx < len; idx++ )
 	{
-		if( ( ( value >> 28 ) ) < 0xA )
-		{
+		if ((( value >> 28 ) ) < 0xA )
 			pbuf[2 * idx] = ( value >> 28 ) + '0';
-		}
 		else
-		{
 			pbuf[2 * idx] = ( value >> 28 ) + 'A' - 10; 
-		}
 
 		value = value << 4;
-
 		pbuf[2 * idx + 1] = 0;
 	}
 }

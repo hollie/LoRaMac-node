@@ -118,9 +118,6 @@ volatile bool Led1TimerEvent = false;
 TimerEvent_t Led2Timer;
 volatile bool Led2TimerEvent = false;
 
-TimerEvent_t Led4Timer;
-volatile bool Led4TimerEvent = false;
-
 #if( OVER_THE_AIR_ACTIVATION != 0 )
 
 /*!
@@ -155,14 +152,6 @@ void OnLed1TimerEvent( void )
 void OnLed2TimerEvent( void )
 {
 	Led2TimerEvent = true;
-}
-
-/*!
- * \brief Function executed on Led 4 Timeout event
- */
-void OnLed4TimerEvent( void )
-{
-	Led4TimerEvent = true;
 }
 
 /*!
@@ -207,7 +196,7 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 int main( void )
 {
 	SystemCoreClockUpdate();
-while(1);
+
 	BoardInitPeriph( );
 	BoardInitMcu( );
 
@@ -253,9 +242,6 @@ while(1)
 	TimerInit( &Led2Timer, OnLed2TimerEvent );
 	TimerSetValue( &Led2Timer, 25000 );
 
-	TimerInit( &Led4Timer, OnLed4TimerEvent );
-	TimerSetValue( &Led4Timer, 25000 );
-
 	LoRaMacSetAdrOn( true );
 
 	while( 1 )
@@ -284,11 +270,6 @@ while(1)
 		{
 			Led2TimerEvent = false;
 			LED_2_OFF();
-		}
-		if( Led4TimerEvent == true )
-		{
-			Led4TimerEvent = false;
-			// Switch LED 4 OFF
 		}
 		if( TxAckReceived == true )
 		{

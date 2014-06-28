@@ -150,7 +150,7 @@ uint32_t GpioMcuRead( Gpio_t *obj )
 	return GPIO_ReadInputDataBit( obj->port, obj->pinIndex );
 }
 
-void EXTIx_Handler(int idx)
+void EXTIx_HandlerEx(int idx)
 {
 	uint32_t irq = (1 << idx);
 	if( EXTI_GetITStatus( irq ) != RESET )
@@ -161,43 +161,36 @@ void EXTIx_Handler(int idx)
 	}
 }
 
-void EXTI0_IRQHandler( void )
+void EXTIx_Handler(int idx)
 {
 #ifdef LOW_POWER_MODE_ENABLE
 	RtcRecoverMcuStatus( );
 #endif
+	EXTIx_HandlerEx(idx);
+}
+
+void EXTI0_IRQHandler( void )
+{
 	EXTIx_Handler(0);
 }
 
 void EXTI1_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-	RtcRecoverMcuStatus( );
-#endif
 	EXTIx_Handler(1);
 }
 
 void EXTI2_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-	RtcRecoverMcuStatus( );
-#endif
 	EXTIx_Handler(2);
 }
 
 void EXTI3_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-	RtcRecoverMcuStatus( );
-#endif
 	EXTIx_Handler(3);
 }
 
 void EXTI4_IRQHandler( void )
 {
-#ifdef LOW_POWER_MODE_ENABLE
-	RtcRecoverMcuStatus( );
-#endif
 	EXTIx_Handler(4);
 }
 
@@ -208,7 +201,7 @@ void EXTI9_5_IRQHandler( void )
 	RtcRecoverMcuStatus( );
 #endif
 	for (idx = 5; idx <= 9; idx++)
-		EXTIx_Handler(idx);
+		EXTIx_HandlerEx(idx);
 }
 
 void EXTI15_10_IRQHandler( void )
@@ -218,5 +211,5 @@ void EXTI15_10_IRQHandler( void )
 	RtcRecoverMcuStatus( );
 #endif
 	for (idx = 10; idx <= 15; idx++)
-		EXTIx_Handler(idx);
+		EXTIx_HandlerEx(idx);
 }

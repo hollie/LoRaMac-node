@@ -1,4 +1,3 @@
-
 #include "usb_lib.h"
 #include "usb_istr.h"
 #include "usb_prop.h"
@@ -8,15 +7,14 @@
 
 #include "stm32l1xx_exti.h"
 
-EXTI_InitTypeDef EXTI_InitStructure;
-
-static void IntToUnicode( uint32_t value, uint8_t *pbuf, uint8_t len );
+void IntToUnicode( uint32_t value, uint8_t *pbuf, uint8_t len );
 
 extern LINE_CODING linecoding;
 
 void UsbMcuInit( void )
 {
     NVIC_InitTypeDef NVIC_InitStructure; 
+	EXTI_InitTypeDef EXTI_InitStructure;
 
     /* Enable the SYSCFG module clock */
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_SYSCFG, ENABLE );
@@ -61,28 +59,22 @@ void UsbMcuLeaveLowPowerMode( void )
 
     /* Set the device state to the correct state */
     if( pInfo->Current_Configuration != 0 )
-    {
         /* Device configured */
         bDeviceState = CONFIGURED;
-    }
     else
-    {
         bDeviceState = ATTACHED;
-    }
-    /*Enable SystemCoreClock*/
+
+    /* Enable SystemCoreClock */
     SystemInit( );
+	SystemCoreClockUpdate();
 }
 
 void UsbMcuCableConfig( FunctionalState newState )
 {
     if( newState != DISABLE )
-    {
         SYSCFG_USBPuCmd( ENABLE );
-    }
     else
-    {
         SYSCFG_USBPuCmd( DISABLE );
-    }  
 }
 
 void UsbMcuGetSerialNum( void )
@@ -102,23 +94,16 @@ void UsbMcuGetSerialNum( void )
     }
 }
 
-static void IntToUnicode( uint32_t value , uint8_t *pbuf , uint8_t len )
+void IntToUnicode( uint32_t value , uint8_t *pbuf , uint8_t len )
 {
-    uint8_t idx = 0;
-
+    uint8_t idx;
     for( idx = 0; idx < len; idx++ )
     {
         if( ( ( value >> 28 ) ) < 0xA )
-        {
             pbuf[2 * idx] = ( value >> 28 ) + '0';
-        }
         else
-        {
             pbuf[2 * idx] = ( value >> 28 ) + 'A' - 10; 
-        }
-
         value = value << 4;
-
         pbuf[2 * idx + 1] = 0;
     }
 }
