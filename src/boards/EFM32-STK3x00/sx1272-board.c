@@ -16,20 +16,20 @@ const struct Radio_s Radio =
 {
 	SX1272Init,
 	SX1272GetStatus,
-	
+    SX1272SetModem,
 	SX1272SetChannel,
 	SX1272IsChannelFree,
+    SX1272Random,
 	SX1272SetRxConfig,
 	SX1272SetTxConfig,
+    SX1272CheckRfFrequency,
 	SX1272GetTimeOnAir,
 	SX1272Send,
 
 	SX1272SetSleep,
 	SX1272SetStby, 
 	SX1272SetRx,
-	
 	SX1272ReadRssi,
-	
 	SX1272Write,
 	SX1272Read,
 	SX1272WriteBuffer,
@@ -64,6 +64,11 @@ void SX1272IoDeInit( void )
 
 	GpioInit( &SX1272.DIO0, RADIO_DIO_0, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 	GpioInit( &SX1272.DIO1, RADIO_DIO_1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+}
+
+uint8_t SX1272GetPaSelect( uint32_t channel )
+{
+    return RF_PACONFIG_PASELECT_PABOOST;
 }
 
 void SX1272SetAntSwLowPower( bool status )
@@ -104,7 +109,7 @@ void SX1272SetAntSw( uint8_t rxTx )
 
 	SX1272.RxTx = rxTx;
 
-	if( rxTx != 0 )
+    if( rxTx != 0 ) // 1: TX, 0: RX
 	{
 		GpioWrite( &AntRx, 0 );
 		GpioWrite( &AntTx, 1 );
@@ -114,4 +119,10 @@ void SX1272SetAntSw( uint8_t rxTx )
 		GpioWrite( &AntRx, 1 );
 		GpioWrite( &AntTx, 0 );
 	}
+}
+
+bool SX1272CheckRfFrequency( uint32_t frequency )
+{
+    // Implement check. Currently all frequencies are supportted
+    return true;
 }

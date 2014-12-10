@@ -22,23 +22,21 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 #define RADIO_INIT_REGISTERS_VALUE                \
 {                                                 \
-    { MODEM_FSK , REG_PACONFIG           , 0x0F },\
     { MODEM_FSK , REG_LNA                , 0x23 },\
-    { MODEM_FSK , REG_RXCONFIG           , 0x0E },\
+    { MODEM_FSK , REG_RXCONFIG           , 0x1E },\
     { MODEM_FSK , REG_RSSICONFIG         , 0xD2 },\
-    { MODEM_FSK , REG_OSC                , 0x07 },\
     { MODEM_FSK , REG_PREAMBLEDETECT     , 0xAA },\
-    { MODEM_FSK , REG_PREAMBLELSB        , 0x08 },\
-    { MODEM_FSK , REG_SYNCVALUE1         , 0x69 },\
-    { MODEM_FSK , REG_SYNCVALUE2         , 0x81 },\
-    { MODEM_FSK , REG_SYNCVALUE3         , 0x7E },\
-    { MODEM_FSK , REG_SYNCVALUE4         , 0x96 },\
+    { MODEM_FSK , REG_OSC                , 0x07 },\
+    { MODEM_FSK , REG_SYNCCONFIG         , 0x12 },\
+    { MODEM_FSK , REG_SYNCVALUE1         , 0xC1 },\
+    { MODEM_FSK , REG_SYNCVALUE2         , 0x94 },\
+    { MODEM_FSK , REG_SYNCVALUE3         , 0xC1 },\
+    { MODEM_FSK , REG_PACKETCONFIG1      , 0xD8 },\
     { MODEM_FSK , REG_FIFOTHRESH         , 0x8F },\
     { MODEM_FSK , REG_IMAGECAL           , 0x02 },\
     { MODEM_FSK , REG_DIOMAPPING1        , 0x00 },\
     { MODEM_FSK , REG_DIOMAPPING2        , 0x30 },\
     { MODEM_LORA, REG_LR_PAYLOADMAXLENGTH, 0x40 },\
-    { MODEM_LORA, 0x31                   , 0x43 },\
 }                                                 \
 
 /*!
@@ -59,6 +57,14 @@ void SX1272IoIrqInit( DioIrqHandler **irqHandlers );
  * \remark Useful when going in MCU lowpower modes
  */
 void SX1272IoDeInit( void );
+
+/*!
+ * \brief Gets the board PA selection configuration
+ *
+ * \param [IN] channel Channel frequency in Hz
+ * \retval PaSelect RegPaConfig PaSelect value
+ */
+uint8_t SX1272GetPaSelect( uint32_t channel );
 
 /*!
  * \brief Set the RF Switch I/Os pins in Low Power mode
@@ -87,6 +93,14 @@ void SX1272AntSwDeInit( void );
  * \param [IN] rxTx [1: Tx, 0: Rx]
  */
 void SX1272SetAntSw( uint8_t rxTx );
+
+/*!
+ * \brief Checks if the given RF frequency is supported by the hardware
+ *
+ * \param [IN] frequency RF frequency to be checked
+ * \retval isSupported [true: supported, false: unsupported]
+ */
+bool SX1272CheckRfFrequency( uint32_t frequency );
 
 /*!
  * Radio hardware and global parameters

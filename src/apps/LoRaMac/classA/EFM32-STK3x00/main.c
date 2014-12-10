@@ -159,8 +159,12 @@ void OnLed2TimerEvent( void )
  */
 void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 {
-	if( info->Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT )
+    if( info->Status == LORAMAC_EVENT_INFO_STATUS_ERROR )
+    {
+        // Schedule a new transmission
 		TxDone = true;
+        return;
+    }
 
 	if( flags->Bits.JoinAccept == 1 )
 	{
@@ -173,14 +177,19 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
 	if( flags->Bits.Tx == 1 )
 	{
 		if( info->TxAckReceived == true )
+        {
 			TxAckReceived = true;
+        }
+        // Schedule a new transmission
 		TxDone = true;
 	}
 
 	if( flags->Bits.Rx == 1 )
 	{
 		if( ( ( info->RxPort == 1 ) || ( info->RxPort == 2 ) ) && ( info->RxBufferSize > 0 ) )
+        {
 			AppLedStateOn = info->RxBuffer[0];
+        }
 		RxDone = true;
 	}
 }
@@ -190,6 +199,7 @@ void OnMacEvent( LoRaMacEventFlags_t *flags, LoRaMacEventInfo_t *info )
  */
 int main( void )
 {
+	uint8_t sendFrameStatus = 0;
 	uint8_t batteryLevel = 0;   
 
 	BoardInitMcu( );
@@ -207,10 +217,11 @@ int main( void )
 	// Random seed initialization
 	srand( RAND_SEED );
 	// Choose a random device address
-	DevAddr = randr( 0, 0x0FFFFFFF );
-
-	LoRaMacInitNwkIds( DevAddr, NwkSKey, AppSKey );
+    // NwkID = 0
+    // NwkAddr rand [0, 33554431]
+    DevAddr = randr( 0, 0x01FFFFFF );
 	
+    LoRaMacInitNwkIds( 0x000000, DevAddr, NwkSKey, AppSKey );
 	IsNetworkJoined = true;
 #else
 	// Sends a JoinReq Command every 5 seconds until the network is joined
@@ -275,6 +286,10 @@ int main( void )
 		{
 			RxDone = false;
 			
+            // Switch LED 2 ON
+            GpioWrite( &Led2, 0 );
+            TimerStart( &Led2Timer );
+
 			if( AppLedStateOn == true )
 			{
 				// Switch LED 3 ON
@@ -313,9 +328,20 @@ int main( void )
 			//
 			AppData[7] = batteryLevel;
 			
-			LoRaMacSendFrame( 1, AppData, APP_DATA_SIZE );
-			//LoRaMacSendConfirmedFrame( 1, AppData, APP_DATA_SIZE, 1 );
-		}
+			 sendFrameStatus = LoRaMacSendFrame( 2, AppData, APP_DATA_SIZE );
+            //sendFrameStatus = LoRaMacSendConfirmedFrame( 2, AppData, APP_DATA_SIZE, 8 );
+            switch( sendFrameStatus )
+            {
+            case 3: // LENGTH_PORT_ERROR
+            case 4: // MAC_CMD_ERROR
+            case 5: // NO_FREE_CHANNEL
+                // Schedule a new transmission
+                TxDone = true;
+                break;
+            default:
+                break;
+			}
+        }
 
 		TimerLowPowerHandler( );
 	}

@@ -888,7 +888,7 @@ static void LoRaMacProcessMacCommands( uint8_t *payload, uint8_t macIndex, uint8
                 }
                 break;
             case SRV_MAC_DUTY_CYCLE_REQ:
-                AggregatedDCycle = 1.0 / POW2( payload[macIndex++] );
+                AggregatedDCycle = 1.0 / pow(2, payload[macIndex++] );
                 
                 // TODO: remove next line. Currently used to suppress 
                 //       Keil compiler warning
@@ -1441,7 +1441,9 @@ static void OnAckTimeoutTimerEvent( void )
         
         if( ( AckTimeoutRetriesCounter % 2 ) == 0 )
         {
-            ChannelsDatarate = MAX( ChannelsDatarate - 1, LORAMAC_MIN_DATARATE );
+            //ChannelsDatarate = MAX( ChannelsDatarate - 1, LORAMAC_MIN_DATARATE );
+					ChannelsDatarate = (ChannelsDatarate - 1) > LORAMAC_MIN_DATARATE ? (ChannelsDatarate - 1) : LORAMAC_MIN_DATARATE ;
+
         }
         if( LoRaMacSetNextChannel( ) != 0 )
         {
