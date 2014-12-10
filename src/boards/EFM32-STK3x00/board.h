@@ -145,8 +145,57 @@
 	#define RADIO_SPI		USART1
 	#define RADIO_SPI_CLK	cmuClock_USART1
 	#define RADIO_SPI_LOC	USART_ROUTE_LOCATION_LOC3
+#else 
+#ifdef EFM32LG990F256
+	/*!
+	 * EFM32-STK3600
+	 */
+	/*
+            ----- STK3600  -----
+             3V3  20  19  GND
+               5V  18  17  PD7
+       DIO1   PD6  16  15  PC6  DIO0
+      LE_RX   PD5  14  13  PB12
+      LE_TX   PD4  12  11  PB11 RF_RST
+        NSS   PD3  10  9   PC5  I2C1_SCL
+        SCK   PD2   8  7   PC4  I2C1_SDA
+       MISO   PD1   6  5   PC3  SW_TX
+       MOSI   PD0   4  3   PC0  SW_RX
+             VMCU   2  1   GND
+	*/
+	// Use Timer for delay
+	#undef LOW_POWER_MODE_ENABLE
+
+	#define LED_1			PE_2
+	#define LED_1_OFF_STATE	0
+	#define LED_1_ON_STATE	1
+	#define LED_2			PE_3
+	#define LED_2_OFF_STATE	0
+	#define LED_2_ON_STATE	1
+
+	#define RADIO_RESET		PB_11
+
+	#define RADIO_MOSI		PD_0
+	#define RADIO_MISO		PD_1
+	#define RADIO_SCLK		PD_2
+	#define RADIO_NSS		PD_3
+
+	#define RADIO_DIO_0		PC_6
+	#define RADIO_DIO_1		PD_6
+
+	#define RADIO_ANT_SWITCH_RX		PC_0
+	#define RADIO_ANT_SWITCH_TX		PC_3
+
+	#define I2C_SCL			PC_5
+	#define I2C_SDA			PC_4
+
+	#define RADIO_SPI		USART1
+	#define RADIO_SPI_CLK	cmuClock_USART1
+	#define RADIO_SPI_LOC	USART_ROUTE_LOCATION_LOC1
+
 #else
 	#error MCU not define
+#endif
 #endif
 #endif
 
